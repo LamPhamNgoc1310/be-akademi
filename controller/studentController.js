@@ -14,6 +14,32 @@ const studentController = {
         }
     },
 
+    updateNewStudent: async (req, res) => {
+        try {
+            let data = req.body;    
+            let student = await StudentModel.findOne({ email: data.email });
+    
+            if (student) {
+                await StudentModel.updateOne({ email: data.email }, { $set: data });
+                
+                return res.status(200).json({
+                    message: 'Student information updated successfully',
+                    student: data
+                });
+            } else {
+                return res.status(404).json({
+                    message: 'Student not found'
+                });
+            }
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Error updating student',
+                error: error.message
+            });
+        }
+    },
+    
+
     register: async (req, res) => {
             const { email, password, studentName } = req.body;
             // Mã hóa mật khẩu
