@@ -39,6 +39,11 @@ const studentController = {
         }
     },
     
+    deleteStudent: async (req,res) => {
+        const studentID = req.params.studentID;
+        let result = await StudentModel.findOneAndDelete(({studentID: studentID}));
+        res.status(200).send(result);
+    },
 
     register: async (req, res) => {
             const { email, password, studentName } = req.body;
@@ -53,7 +58,7 @@ const studentController = {
             );
 
             // Định dạng studentID theo dạng #00001, #00002,...
-            const formattedID = `#${String(counter.seq).padStart(5, '0')}`;
+            const formattedID = `A${String(counter.seq).padStart(5, '0')}`;
 
             // Tạo student mới với studentID tự động tăng
             const createStudent = await StudentModel.create({
