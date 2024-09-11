@@ -1,7 +1,7 @@
 import StudentModel from "../model/student.schema.js";
 
 const studentMiddleware = {
-    checkRegister: async (req, res, next) => {
+    checkRegister:  async (req, res, next) => {
         try {
             const { email, password, studentName } = req.body;
             if (!studentName) {
@@ -24,7 +24,7 @@ const studentMiddleware = {
                 data: null
             });
         }
-    }
+    },
 }
 
 export default studentMiddleware

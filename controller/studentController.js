@@ -1,6 +1,12 @@
 import StudentModel from "../model/student.schema.js";
 import Counter from "../model/counterID.schema.js"; 
 import bcrypt from 'bcrypt';
+import { v2 as cloudinary} from 'cloudinary'
+import dotenv from 'dotenv';
+dotenv.config();
+
+const getCloudinaryConfig = JSON.parse(process.env.CLOUD_DINARY_CONFIG);
+cloudinary.config(getCloudinaryConfig);
 
 const studentController = {
     getListStudent: async (req, res) => {
@@ -17,11 +23,19 @@ const studentController = {
     updateNewStudent: async (req, res) => {
         try {
             let data = req.body;    
+            let avatar = req.file;
             let student = await StudentModel.findOne({ email: data.email });
-    
+
             if (student) {
                 await StudentModel.updateOne({ email: data.email }, { $set: data });
-                
+                if(avatar){
+                    const dataUrl = `data:${avatar.mimetype};base64,${avatar.buffer.toString('base64')}`;
+                    const uploaded = await cloudinary.uploader.upload(dataUrl,
+                        {resource_type: 'auto'}
+                    )
+                    student.avatar = uploaded.url;
+                    await student.save()
+                }
                 return res.status(200).json({
                     message: 'Student information updated successfully',
                     student: data
@@ -39,6 +53,23 @@ const studentController = {
         }
     },
     
+    updateStudent: async (req, res) => {
+        try {
+            let newUser = req.body;
+            let userId = req.params.studentID;
+            let result = await StudentModel.findOneAndUpdate(
+                { studentID: userId },
+                newUser
+            );
+            if (!result) {
+                return res.status(404).send({ message: "Không tìm thấy sinh viên" });
+            }
+            res.status(200).send(result);
+        } catch (error) {
+            res.status(500).send({ message: "Lỗi khi cập nhật sinh viên", error: error.message });
+        }
+    },
+
     deleteStudent: async (req,res) => {
         const studentID = req.params.studentID;
         let result = await StudentModel.findOneAndDelete(({studentID: studentID}));
