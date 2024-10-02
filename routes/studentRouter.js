@@ -12,7 +12,8 @@ const upload = multer({
 
 studentRouter.get('/', studentController.getListStudent)
 studentRouter.post('/register', studentMiddleware.checkRegister, studentController.register)
-studentRouter.put('/update-student', upload.single('avatar'), studentController.updateNewStudent)
+studentRouter.put('/update-student', studentController.updateNewStudent);
+studentRouter.put('/update-student-avatar', upload.single('avatar'), studentController.uploadAvatar);
 studentRouter.put('/update-student/:studentID', studentController.updateStudent)
 studentRouter.delete('/delete-student/:studentID', studentController.deleteStudent)
 

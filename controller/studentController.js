@@ -23,19 +23,19 @@ const studentController = {
     updateNewStudent: async (req, res) => {
         try {
             let data = req.body;    
-            let avatar = req.file;
+            // let avatar = req.file;
             let student = await StudentModel.findOne({ email: data.email });
 
             if (student) {
                 await StudentModel.updateOne({ email: data.email }, { $set: data });
-                if(avatar){
-                    const dataUrl = `data:${avatar.mimetype};base64,${avatar.buffer.toString('base64')}`;
-                    const uploaded = await cloudinary.uploader.upload(dataUrl,
-                        {resource_type: 'auto'}
-                    )
-                    student.avatar = uploaded.url;
-                    await student.save()
-                }
+                // if(avatar){
+                //     const dataUrl = `data:${avatar.mimetype};base64,${avatar.buffer.toString('base64')}`;
+                //     const uploaded = await cloudinary.uploader.upload(dataUrl,
+                //         {resource_type: 'auto'}
+                //     )
+                //     student.avatar = uploaded.url;
+                //     await student.save()
+                // }
                 return res.status(200).json({
                     message: 'Student information updated successfully',
                     student: data
@@ -49,6 +49,42 @@ const studentController = {
             return res.status(500).json({
                 message: 'Error updating student',
                 error: error.message
+            });
+        }
+    },
+
+    uploadAvatar: async (req, res) => {
+        let avatar = req.file;
+        let {email} = req.query;
+        let student = await StudentModel.findOne({ email: email });
+        if (student) {
+            if(avatar){
+                const dataUrl = `data:${avatar.mimetype};base64,${avatar.buffer.toString('base64')}`;
+                const uploaded = await cloudinary.uploader.upload(dataUrl,
+                    {resource_type: 'auto'},
+                    async (err, result) => {
+                        if (result && result.url) {
+                            student.avatar = result.url;
+                            await student.save()
+                            return res.status(200).json({
+                                message: 'Student information updated successfully',
+                                student: result.url
+                            });
+                        } else {
+                            return res.status(500).json({
+                                message: 'Error when upload file: '  + err.message
+                            });
+                        }
+                    }
+                )
+            } else {
+                return res.status(404).json({
+                    message: 'Image not found'
+                });
+            }
+        } else {
+            return res.status(404).json({
+                message: 'Student not found'
             });
         }
     },

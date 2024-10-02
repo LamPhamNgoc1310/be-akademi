@@ -12,11 +12,16 @@ const teacherSchema = new mongoose.Schema({
         unique: true,
         required: true,
     },
+    role: {
+        type: String,
+        default: 'Teacher'
+    }, 
+    avatar: String,
     dateOfBirth: String,
-    grades: {type: [String]},
+    grades: [String],
+    subject: String,
     phoneNumber: String,
     address: String
-
 })
 
 const teacherModel = mongoose.model('teachers', teacherSchema);
