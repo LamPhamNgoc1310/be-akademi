@@ -18,7 +18,6 @@ const teacherSchema = new mongoose.Schema({
     }, 
     avatar: String,
     dateOfBirth: String,
-    grades: [String],
     subject: String,
     phoneNumber: String,
     address: String
